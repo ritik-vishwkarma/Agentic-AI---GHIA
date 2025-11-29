@@ -1,0 +1,64 @@
+# Core Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+python-dotenv==1.0.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# Agent Framework - LangGraph for multi-agent orchestration
+langgraph==0.2.0
+langchain==0.2.0
+langchain-groq
+langchain-core
+langchain-google-genai
+
+# ASR - AI4Bharat IndicWav2Vec
+soundfile==0.12.1
+librosa==0.10.1
+pydub==0.25.1
+torch
+torchaudio
+transformers
+
+# Database
+sqlalchemy==2.0.25
+alembic==1.13.1
+
+# Security & Encryption (DPDP Act Compliance)
+cryptography==42.0.0
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+argon2-cffi==23.1.0
+
+# Dashboard
+streamlit==1.30.0
+requests==2.31.0
+pandas
+
+# Text Processing for Hindi/Hinglish
+regex==2023.12.25
+indic-nlp-library==0.92
+
+# Text-to-Speech (Hindi)
+gTTS==2.5.0
+
+# Utils
+httpx==0.26.0
+aiofiles==23.2.1
+python-dateutil==2.8.2
+pytz==2024.1
+
+# LiveKit (Optional)
+livekit
+livekit-api
+
+# Testing
+pytest==8.0.0
+pytest-asyncio==0.23.0
+
+# Rate Limiting
+slowapi==0.1.9
+
+# Logging
+structlog==24.1.0

@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHIA - Gramin Health Intake Assistant</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #059669;
+            --primary-dark: #047857;
+            --primary-light: #d1fae5;
+            --secondary: #0284c7;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --success: #22c55e;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .logo-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.offline {
+            background: #ef4444;
+            animation: none;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: var(--bg);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .form-group .hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        select,
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        select:focus,
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* Record Button */
+        .record-section {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .record-btn {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--danger) 0%, #b91c1c 100%);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 0 auto 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+        }
+
+        .record-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .record-btn.recording {
+            background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+            animation: pulse-shadow 1.5s infinite;
+        }
+
+        @keyframes pulse-shadow {
+
+            0%,
+            100% {
+                box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 8px 40px rgba(34, 197, 94, 0.6);
+            }
+        }
+
+        .record-btn .icon {
+            font-size: 2.5rem;
+        }
+
+        .record-hint {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* Audio Preview */
+        .audio-preview {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .audio-preview.show {
+            display: flex;
+        }
+
+        .audio-preview audio {
+            flex: 1;
+            height: 40px;
+        }
+
+        /* Results Section */
+        .result-card {
+            display: none;
+            margin-top: 1.5rem;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .risk-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .risk-critical {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 2px solid #dc2626;
+        }
+
+        .risk-urgent {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .risk-moderate {
+            background: #fffbeb;
+            color: #d97706;
+        }
+
+        .risk-routine {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .result-section {
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .result-section h4 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .result-section p {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .result-section.hindi {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+
+        .symptoms-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .symptom-tag {
+            padding: 6px 12px;
+            background: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .stat-card.urgent .value {
+            color: var(--danger);
+        }
+
+        .stat-card.moderate .value {
+            color: var(--warning);
+        }
+
+        .stat-card.routine .value {
+            color: var(--success);
+        }
+
+        /* Recent Cases */
+        .cases-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .case-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .case-item:hover {
+            background: var(--bg);
+        }
+
+        .case-item:last-child {
+            border-bottom: none;
+        }
+
+        .case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 6px;
+        }
+
+        .case-id {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .case-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .case-complaint {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .mini-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .mini-badge.urgent {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .mini-badge.moderate {
+            background: #fffbeb;
+            color: #d97706;
+        }
+
+        .mini-badge.routine {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        /* Alerts Section */
+        .alert-item {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+        }
+
+        .alert-item.high {
+            background: #fef2f2;
+            border-color: #dc2626;
+        }
+
+        .alert-item.medium {
+            background: #fffbeb;
+            border-color: #f59e0b;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .alert-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Feedback Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.1rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            padding: 14px 20px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+            max-width: 350px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .toast.info {
+            border-left: 4px solid var(--secondary);
+        }
+
+        /* Performance Section */
+        .performance-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .performance-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🏥</div>
+                <div class="logo-text">
+                    <h1>GHIA</h1>
+                    <p>ग्रामीण स्वास्थ्य सेवा सहायक</p>
+                </div>
+            </div>
+            <div class="header-status">
+                <div class="status-indicator" id="serverStatus">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Connecting...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Left Column - Intake Form -->
+        <div class="content-area">
+            <div class="card">
+                <div class="card-header">
+                    <h2>📝 Patient Intake / मरीज़ का विवरण</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Language Selection -->
+                    <div class="form-group">
+                        <label>🌐 Language / भाषा</label>
+                        <select id="language">
+                            <option value="hi">हिंदी (Hindi)</option>
+                            <option value="en">English</option>
+                            <option value="hinglish">Hinglish</option>
+                            <option value="mr">मराठी (Marathi)</option>
+                            <option value="ta">தமிழ் (Tamil)</option>
+                            <option value="te">తెలుగు (Telugu)</option>
+                            <option value="bn">বাংলা (Bengali)</option>
+                            <option value="gu">ગુજરાતી (Gujarati)</option>
+                        </select>
+                    </div>
+
+                    <!-- Input Mode Tabs -->
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="voice">🎤 Voice / आवाज़</button>
+                        <button class="tab-btn" data-tab="text">⌨️ Text / टाइप</button>
+                    </div>
+
+                    <!-- Voice Tab -->
+                    <div class="tab-content active" id="voiceTab">
+                        <div class="record-section">
+                            <button class="record-btn" id="recordBtn">
+                                <span class="icon">🎤</span>
+                                <span id="recordText">बोलिए</span>
+                            </button>
+                            <p class="record-hint">Press and hold to record / रिकॉर्ड करने के लिए दबाएं</p>
+                        </div>
+
+                        <div class="audio-preview" id="audioPreview">
+                            <audio id="audioPlayer" controls></audio>
+                            <button class="btn btn-secondary" id="clearAudio">✕</button>
+                        </div>
+
+                        <button class="btn btn-primary btn-full" id="submitAudioBtn" style="display: none;">
+                            <span id="submitAudioText">जमा करें / Submit</span>
+                        </button>
+                    </div>
+
+                    <!-- Text Tab -->
+                    <div class="tab-content" id="textTab">
+                        <div class="form-group">
+                            <label>Describe symptoms / लक्षण बताएं</label>
+                            <textarea id="textInput"
+                                placeholder="मुझे बुखार है, सिर में दर्द है, दो दिन से...&#10;&#10;I have fever, headache for two days..."></textarea>
+                            <p class="hint">आप हिंदी, English या Hinglish में लिख सकते हैं</p>
+                        </div>
+
+                        <button class="btn btn-primary btn-full" id="submitTextBtn">
+                            <span id="submitTextBtnText">जमा करें / Submit</span>
+                        </button>
+                    </div>
+
+                    <!-- Result Section -->
+                    <div class="result-card card" id="resultCard">
+                        <div class="card-header">
+                            <h2>📋 Assessment Result</h2>
+                            <span class="risk-badge" id="riskBadge">--</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="result-section">
+                                <h4>🔹 Chief Complaint / मुख्य शिकायत</h4>
+                                <p id="chiefComplaint">--</p>
+                            </div>
+
+                            <div class="result-section">
+                                <h4>🩺 Symptoms Identified</h4>
+                                <div class="symptoms-list" id="symptomsList"></div>
+                            </div>
+
+                            <div class="result-section">
+                                <h4>🇬🇧 Summary (English)</h4>
+                                <p id="summaryEn">--</p>
+                            </div>
+
+                            <div class="result-section hindi">
+                                <h4>🇮🇳 सारांश (हिंदी)</h4>
+                                <p id="summaryHi">--</p>
+                            </div>
+
+                            <div class="result-section">
+                                <h4>💊 Recommended Action / अनुशंसित कार्रवाई</h4>
+                                <p id="recommendedAction">--</p>
+                            </div>
+
+                            <div class="result-section" id="followUpSection" style="display: none;">
+                                <h4>❓ Follow-up Questions</h4>
+                                <ul id="followUpQuestions"></ul>
+                            </div>
+
+                            <div style="display: flex; gap: 12px; margin-top: 1rem;">
+                                <button class="btn btn-secondary" id="feedbackBtn" style="flex:1;">
+                                    ✏️ Provide Feedback
+                                </button>
+                                <button class="btn btn-primary" id="newIntakeBtn" style="flex:1;">
+                                    ➕ New Intake
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Sidebar -->
+        <aside class="sidebar">
+            <!-- Stats Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>📊 Today's Statistics</h2>
+                    <button class="btn btn-secondary" id="refreshStats" style="padding: 6px 12px; font-size: 0.8rem;">
+                        🔄
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="value" id="totalCases">0</div>
+                            <div class="label">Total Cases</div>
+                        </div>
+                        <div class="stat-card urgent">
+                            <div class="value" id="urgentCases">0</div>
+                            <div class="label">🔴 Urgent</div>
+                        </div>
+                        <div class="stat-card moderate">
+                            <div class="value" id="moderateCases">0</div>
+                            <div class="label">🟡 Moderate</div>
+                        </div>
+                        <div class="stat-card routine">
+                            <div class="value" id="routineCases">0</div>
+                            <div class="label">🟢 Routine</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outbreak Alerts -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>🚨 Health Alerts</h2>
+                </div>
+                <div class="card-body" id="alertsContainer">
+                    <div class="empty-state" id="noAlerts">
+                        <div class="icon">✅</div>
+                        <p>No active outbreak alerts</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Cases -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>📋 Recent Cases</h2>
+                </div>
+                <div class="cases-list" id="recentCases">
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <p>No cases yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Performance -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>📈 System Performance</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>AI Accuracy (Last 30 days)</label>
+                        <div class="performance-bar">
+                            <div class="performance-fill" id="accuracyBar" style="width: 0%"></div>
+                        </div>
+                        <p class="hint"><span id="accuracyValue">--</span>% based on doctor feedback</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Feedback Received</label>
+                        <p style="font-size: 1.25rem; font-weight: 600;" id="totalFeedback">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>⚡ Quick Actions</h2>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-secondary btn-full" id="runDemoBtn" style="margin-bottom: 10px;">
+                        🎯 Run Demo Intake
+                    </button>
+                    <button class="btn btn-secondary btn-full" id="viewDocsBtn">
+                        📚 API Documentation
+                    </button>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Feedback Modal -->
+    <div class="modal-overlay" id="feedbackModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>📝 Doctor Feedback</h3>
+                <button class="modal-close" id="closeFeedbackModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Doctor ID</label>
+                    <input type="text" id="doctorId" placeholder="e.g., DOC-001">
+                </div>
+                <div class="form-group">
+                    <label>Feedback Type</label>
+                    <select id="feedbackType">
+                        <option value="positive_confirmation">✅ AI was correct</option>
+                        <option value="triage_adjustment">⚖️ Triage level adjustment</option>
+                        <option value="symptom_correction">🩺 Symptom correction</option>
+                        <option value="diagnosis_correction">🔬 Diagnosis correction</option>
+                        <option value="treatment_modification">💊 Treatment modification</option>
+                    </select>
+                </div>
+                <div class="form-group" id="correctionFields" style="display: none;">
+                    <label>Corrected Value</label>
+                    <textarea id="correctedValue" placeholder="Enter the correct value..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Reasoning (Optional)</label>
+                    <textarea id="feedbackReasoning" placeholder="Why is this correction needed?"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelFeedback">Cancel</button>
+                <button class="btn btn-primary" id="submitFeedback">Submit Feedback</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Case Detail Modal -->
+    <div class="modal-overlay" id="caseModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>📋 Case Details</h3>
+                <button class="modal-close" id="closeCaseModal">&times;</button>
+            </div>
+            <div class="modal-body" id="caseModalContent">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- <script>
+        // ============================================
+        // GHIA Frontend - Complete Implementation
+        // ============================================
+
+        const API_URL = 'http://localhost:8000';
+
+        // State
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let audioBlob = null;
+        let currentIntakeId = null;
+        let currentResult = null;
+
+        // ============================================
+        // Initialization
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            initTabs();
+            initRecording();
+            initEventListeners();
+            checkServerStatus();
+            loadDashboardData();
+
+            // Auto-refresh every 30 seconds
+            setInterval(loadDashboardData, 30000);
+        });
+
+        // ============================================
+        // Tab Navigation
+        // ============================================
+        function initTabs() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.dataset.tab;
+
+                    // Update buttons
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Update content
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById(`${tabId}Tab`).classList.add('active');
+                });
+            });
+        }
+
+        // ============================================
+        // Recording Functions
+        // ============================================
+        function initRecording() {
+            const recordBtn = document.getElementById('recordBtn');
+
+            recordBtn.addEventListener('mousedown', startRecording);
+            recordBtn.addEventListener('mouseup', stopRecording);
+            recordBtn.addEventListener('mouseleave', stopRecording);
+            recordBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startRecording(); });
+            recordBtn.addEventListener('touchend', (e) => { e.preventDefault(); stopRecording(); });
+        }
+
+        async function startRecording() {
+            if (isRecording) return;
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) audioChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    document.getElementById('audioPlayer').src = audioUrl;
+                    document.getElementById('audioPreview').classList.add('show');
+                    document.getElementById('submitAudioBtn').style.display = 'block';
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+
+                document.getElementById('recordBtn').classList.add('recording');
+                document.getElementById('recordText').textContent = 'रिकॉर्डिंग...';
+
+            } catch (err) {
+                showToast('Microphone access denied', 'error');
+            }
+        }
+
+        function stopRecording() {
+            if (!isRecording || !mediaRecorder) return;
+
+            mediaRecorder.stop();
+            isRecording = false;
+
+            document.getElementById('recordBtn').classList.remove('recording');
+            document.getElementById('recordText').textContent = 'बोलिए';
+        }
+
+        // ============================================
+        // Event Listeners
+        // ============================================
+        function initEventListeners() {
+            // Clear audio
+            document.getElementById('clearAudio').addEventListener('click', () => {
+                audioBlob = null;
+                document.getElementById('audioPreview').classList.remove('show');
+                document.getElementById('submitAudioBtn').style.display = 'none';
+            });
+
+            // Submit audio
+            document.getElementById('submitAudioBtn').addEventListener('click', submitAudio);
+
+            // Submit text
+            document.getElementById('submitTextBtn').addEventListener('click', submitText);
+
+            // New intake
+            document.getElementById('newIntakeBtn').addEventListener('click', resetForm);
+
+            // Feedback
+            document.getElementById('feedbackBtn').addEventListener('click', () => {
+                document.getElementById('feedbackModal').classList.add('show');
+            });
+
+            document.getElementById('closeFeedbackModal').addEventListener('click', () => {
+                document.getElementById('feedbackModal').classList.remove('show');
+            });
+
+            document.getElementById('cancelFeedback').addEventListener('click', () => {
+                document.getElementById('feedbackModal').classList.remove('show');
+            });
+
+            document.getElementById('submitFeedback').addEventListener('click', submitFeedback);
+
+            // Feedback type change
+            document.getElementById('feedbackType').addEventListener('change', (e) => {
+                const showCorrection = e.target.value !== 'positive_confirmation';
+                document.getElementById('correctionFields').style.display = showCorrection ? 'block' : 'none';
+            });
+
+            // Case modal
+            document.getElementById('closeCaseModal').addEventListener('click', () => {
+                document.getElementById('caseModal').classList.remove('show');
+            });
+
+            // Refresh stats
+            document.getElementById('refreshStats').addEventListener('click', loadDashboardData);
+
+            // Demo
+            document.getElementById('runDemoBtn').addEventListener('click', runDemo);
+
+            // Docs
+            document.getElementById('viewDocsBtn').addEventListener('click', () => {
+                window.open(`${API_URL}/docs`, '_blank');
+            });
+
+            // Close modals on overlay click
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) overlay.classList.remove('show');
+                });
+            });
+        }
+
+        // ============================================
+        // API Calls
+        // ============================================
+        async function submitText() {
+            const text = document.getElementById('textInput').value.trim();
+            if (!text) {
+                showToast('Please enter symptoms', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('submitTextBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Processing...';
+
+            try {
+                const formData = new FormData();
+                formData.append('text', text);
+                formData.append('language', document.getElementById('language').value);
+
+                const response = await fetch(`${API_URL}/api/intake/text`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showResult(data);
+                    showToast('Assessment complete!', 'success');
+                    loadDashboardData();
+                } else {
+                    throw new Error(data.detail || 'Server error');
+                }
+            } catch (err) {
+                showToast(`Error: ${err.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'जमा करें / Submit';
+            }
+        }
+
+        async function submitAudio() {
+            if (!audioBlob) {
+                showToast('No recording found', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('submitAudioBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Processing...';
+
+            try {
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'recording.webm');
+                formData.append('language', document.getElementById('language').value);
+
+                const response = await fetch(`${API_URL}/api/intake/audio`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showResult(data);
+                    showToast('Assessment complete!', 'success');
+                    loadDashboardData();
+                } else {
+                    throw new Error(data.detail || 'Server error');
+                }
+            } catch (err) {
+                showToast(`Error: ${err.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'जमा करें / Submit';
+            }
+        }
+
+        async function runDemo() {
+            const btn = document.getElementById('runDemoBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Running...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/intake/demo`, { method: 'POST' });
+                const data = await response.json();
+
+                if (response.ok) {
+                    showResult(data);
+                    showToast('Demo intake created!', 'success');
+                    loadDashboardData();
+                } else {
+                    throw new Error(data.detail || 'Demo failed');
+                }
+            } catch (err) {
+                showToast(`Error: ${err.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '🎯 Run Demo Intake';
+            }
+        }
+
+        async function submitFeedback() {
+            const doctorId = document.getElementById('doctorId').value.trim();
+            const feedbackType = document.getElementById('feedbackType').value;
+            const correctedValue = document.getElementById('correctedValue').value.trim();
+            const reasoning = document.getElementById('feedbackReasoning').value.trim();
+
+            if (!doctorId) {
+                showToast('Please enter Doctor ID', 'warning');
+                return;
+            }
+
+            if (!currentIntakeId) {
+                showToast('No intake selected', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('submitFeedback');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Submitting...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/feedback/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        intake_id: currentIntakeId,
+                        doctor_id: doctorId,
+                        feedback_type: feedbackType,
+                        original: currentResult || {},
+                        corrected: feedbackType !== 'positive_confirmation'
+                            ? { value: correctedValue }
+                            : {},
+                        reasoning: reasoning
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showToast('Feedback submitted! Thank you.', 'success');
+                    document.getElementById('feedbackModal').classList.remove('show');
+                    loadPerformance();
+                } else {
+                    throw new Error(data.detail || 'Failed to submit feedback');
+                }
+            } catch (err) {
+                showToast(`Error: ${err.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Submit Feedback';
+            }
+        }
+
+        // ============================================
+        // Dashboard Data Loading
+        // ============================================
+        async function loadDashboardData() {
+            await Promise.all([
+                loadStats(),
+                loadRecentCases(),
+                loadAlerts(),
+                loadPerformance()
+            ]);
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_URL}/api/dashboard/stats`);
+                const data = await response.json();
+
+                document.getElementById('totalCases').textContent = data.total_intakes || 0;
+                document.getElementById('urgentCases').textContent = data.urgent || 0;
+                document.getElementById('moderateCases').textContent = data.moderate || 0;
+                document.getElementById('routineCases').textContent = data.routine || 0;
+            } catch (err) {
+                console.error('Failed to load stats:', err);
+            }
+        }
+
+        async function loadRecentCases() {
+            try {
+                const response = await fetch(`${API_URL}/api/dashboard/intakes?limit=5`);
+                const data = await response.json();
+                const intakes = data.intakes || [];
+
+                const container = document.getElementById('recentCases');
+
+                if (intakes.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">📭</div>
+                            <p>No cases yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = intakes.map(intake => `
+                    <div class="case-item" onclick="showCaseDetails(${intake.id})">
+                        <div class="case-header">
+                            <span class="case-id">#${intake.id}</span>
+                            <span class="mini-badge ${intake.risk_level}">${intake.risk_level}</span>
+                        </div>
+                        <p class="case-complaint">${intake.chief_complaint || intake.summary_english || 'No details'}</p>
+                        <span class="case-time">${formatTime(intake.created_at)}</span>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Failed to load cases:', err);
+            }
+        }
+
+        async function loadAlerts() {
+            try {
+                // This would call outbreak detection endpoint
+                // For now, show empty state
+                const container = document.getElementById('alertsContainer');
+                container.innerHTML = `
+                    <div class="empty-state" id="noAlerts">
+                        <div class="icon">✅</div>
+                        <p>No active outbreak alerts</p>
+                    </div>
+                `;
+            } catch (err) {
+                console.error('Failed to load alerts:', err);
+            }
+        }
+
+        async function loadPerformance() {
+            try {
+                const response = await fetch(`${API_URL}/api/feedback/performance`);
+                const data = await response.json();
+
+                const accuracy = (data.accuracy || 0.5) * 100;
+                document.getElementById('accuracyBar').style.width = `${accuracy}%`;
+                document.getElementById('accuracyValue').textContent = accuracy.toFixed(1);
+                document.getElementById('totalFeedback').textContent = data.total_feedback || 0;
+            } catch (err) {
+                console.error('Failed to load performance:', err);
+            }
+        }
+
+        async function showCaseDetails(id) {
+            try {
+                const response = await fetch(`${API_URL}/api/dashboard/intakes`);
+                const data = await response.json();
+                const intake = data.intakes?.find(i => i.id === id);
+
+                if (!intake) return;
+
+                const content = document.getElementById('caseModalContent');
+                content.innerHTML = `
+                    <div class="result-header">
+                        <span class="case-id">Case #${intake.id}</span>
+                        <span class="risk-badge risk-${intake.risk_level}">${intake.risk_level.toUpperCase()}</span>
+                    </div>
+                    <div class="result-section">
+                        <h4>Chief Complaint</h4>
+                        <p>${intake.chief_complaint || '--'}</p>
+                    </div>
+                    <div class="result-section">
+                        <h4>English Summary</h4>
+                        <p>${intake.summary_english || '--'}</p>
+                    </div>
+                    <div class="result-section hindi">
+                        <h4>हिंदी सारांश</h4>
+                        <p>${intake.summary_hindi || '--'}</p>
+                    </div>
+                    <div class="result-section">
+                        <h4>Recommended Action</h4>
+                        <p>${intake.recommended_action || '--'}</p>
+                    </div>
+                    <p class="hint">Created: ${formatTime(intake.created_at)}</p>
+                `;
+
+                document.getElementById('caseModal').classList.add('show');
+            } catch (err) {
+                showToast('Failed to load case details', 'error');
+            }
+        }
+
+        // ============================================
+        // UI Functions
+        // ============================================
+        // function showResult(data) {
+        //     currentIntakeId = data.id;
+        //     currentResult = data;
+
+        //     // Risk badge
+        //     const risk = (data.risk_level || 'routine').toLowerCase();
+        //     const riskBadge = document.getElementById('riskBadge');
+        //     riskBadge.className = `risk-badge risk-${risk}`;
+        //     riskBadge.textContent = risk.toUpperCase();
+
+        //     // Chief complaint
+        //     document.getElementById('chiefComplaint').textContent = 
+        //         data.chief_complaint || data.symptoms?.[0]?.name || '--';
+
+        //     // Symptoms
+        //     const symptomsList = document.getElementById('symptomsList');
+        //     const symptoms = data.symptoms || [];
+        //     if (symptoms.length > 0) {
+        //         symptomsList.innerHTML = symptoms.map(s => 
+        //             `<span class="symptom-tag">${s.name || s}</span>`
+        //         ).join('');
+        //     } else {
+        //         symptomsList.innerHTML = '<span class="symptom-tag">--</span>';
+        //     }
+
+        //     // Summaries
+        //     document.getElementById('summaryEn').textContent = data.summary_english || '--';
+        //     document.getElementById('summaryHi').textContent = data.summary_hindi || '--';
+        //     document.getElementById('recommendedAction').textContent = data.recommended_action || '--';
+
+        //     // Follow-up questions
+        //     const followUps = data.follow_up_questions || [];
+        //     const followUpSection = document.getElementById('followUpSection');
+        //     if (followUps.length > 0) {
+        //         followUpSection.style.display = 'block';
+        //         document.getElementById('followUpQuestions').innerHTML = 
+        //             followUps.map(q => `<li>${q}</li>`).join('');
+        //     } else {
+        //         followUpSection.style.display = 'none';
+        //     }
+
+        //     // Show result card
+        //     document.getElementById('resultCard').classList.add('show');
+        // }
+
+        function showResult(data) {
+            currentIntakeId = data.id;
+            currentResult = data;
+
+            // Show transcription if available (for audio input)
+            if (data.transcription) {
+                showToast(`Heard: "${data.transcription.substring(0, 50)}..."`, 'info');
+            }
+
+            // Risk badge
+            const risk = (data.risk_level || 'routine').toLowerCase();
+            const riskBadge = document.getElementById('riskBadge');
+            riskBadge.className = `risk-badge risk-${risk}`;
+            riskBadge.textContent = risk.toUpperCase();
+
+
+            function resetForm() {
+                currentIntakeId = null;
+                currentResult = null;
+                document.getElementById('textInput').value = '';
+                audioBlob = null;
+                document.getElementById('audioPreview').classList.remove('show');
+                document.getElementById('submitAudioBtn').style.display = 'none';
+                document.getElementById('resultCard').classList.remove('show');
+            }
+
+            async function checkServerStatus() {
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+
+                try {
+                    const response = await fetch(`${API_URL}/health`);
+                    if (response.ok) {
+                        statusDot.classList.remove('offline');
+                        statusText.textContent = 'Connected';
+                    } else {
+                        throw new Error('Server error');
+                    }
+                } catch (err) {
+                    statusDot.classList.add('offline');
+                    statusText.textContent = 'Offline';
+                }
+            }
+
+            function showToast(message, type = 'info') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+
+                const icons = {
+                    success: '✅',
+                    error: '❌',
+                    warning: '⚠️',
+                    info: 'ℹ️'
+                };
+
+                toast.innerHTML = `<span>${icons[type]}</span><span>${message}</span>`;
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => toast.remove(), 300);
+                }, 4000);
+            }
+
+            function formatTime(dateStr) {
+                if (!dateStr) return '--';
+                const date = new Date(dateStr);
+                const now = new Date();
+                const diff = now - date;
+
+                if (diff < 60000) return 'Just now';
+                if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+                if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+                return date.toLocaleDateString();
+            }
+
+            // Periodic status check
+            setInterval(checkServerStatus, 10000);
+    </script> -->
+
+    <!-- Replace everything inside <script> tags with this: -->
+
+    <script>
+        // ============================================
+        // GHIA Frontend - Complete Implementation
+        // ============================================
+
+        const API_URL = 'http://localhost:8000';
+
+        // State
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let audioBlob = null;
+        let currentIntakeId = null;
+        let currentResult = null;
+
+        // ============================================
+        // Initialization
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            initTabs();
+            initRecording();
+            initEventListeners();
+            checkServerStatus();
+            loadDashboardData();
+
+            // Auto-refresh every 30 seconds
+            setInterval(loadDashboardData, 30000);
+        });
+
+        // ============================================
+        // Tab Navigation
+        // ============================================
+        function initTabs() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.dataset.tab;
+
+                    // Update buttons
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Update content
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById(`${tabId}Tab`).classList.add('active');
+                });
+            });
+        }
+
+        // ============================================
+        // Recording Functions
+        // ============================================
+        function initRecording() {
+            const recordBtn = document.getElementById('recordBtn');
+
+            recordBtn.addEventListener('mousedown', startRecording);
+            recordBtn.addEventListener('mouseup', stopRecording);
+            recordBtn.addEventListener('mouseleave', stopRecording);
+            recordBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startRecording(); });
+            recordBtn.addEventListener('touchend', (e) => { e.preventDefault(); stopRecording(); });
+        }
+
+        async function startRecording() {
+            if (isRecording) return;
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) audioChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    document.getElementById('audioPlayer').src = audioUrl;
+                    document.getElementById('audioPreview').classList.add('show');
+                    document.getElementById('submitAudioBtn').style.display = 'block';
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+
+                document.getElementById('recordBtn').classList.add('recording');
+                document.getElementById('recordText').textContent = 'रिकॉर्डिंग...';
+
+            } catch (err) {
+                showToast('Microphone access denied', 'error');
+            }
+        }
+
+        function stopRecording() {
+            if (!isRecording || !mediaRecorder) return;
+
+            mediaRecorder.stop();
+            isRecording = false;
+
+            document.getElementById('recordBtn').classList.remove('recording');
+            document.getElementById('recordText').textContent = 'बोलिए';
+        }
+
+        // ============================================
+        // Event Listeners
+        // ============================================
+        function initEventListeners() {
+            // Clear audio
+            document.getElementById('clearAudio').addEventListener('click', () => {
+                audioBlob = null;
+                document.getElementById('audioPreview').classList.remove('show');
+                document.getElementById('submitAudioBtn').style.display = 'none';
+            });
+
+            // Submit audio
+            document.getElementById('submitAudioBtn').addEventListener('click', submitAudio);
+
+            // Submit text
+            document.getElementById('submitTextBtn').addEventListener('click', submitText);
+
+            // New intake
+            document.getElementById('newIntakeBtn').addEventListener('click', resetForm);
+
+            // Feedback
+            document.getElementById('feedbackBtn').addEventListener('click', () => {
+                document.getElementById('feedbackModal').classList.add('show');
+            });
+
+            document.getElementById('closeFeedbackModal').addEventListener('click', () => {
+                document.getElementById('feedbackModal').classList.remove('show');
+            });
+
+            document.getElementById('cancelFeedback').addEventListener('click', () => {
+                document.getElementById('feedbackModal').classList.remove('show');
+            });
+
+            document.getElementById('submitFeedback').addEventListener('click', submitFeedback);
+
+            // Feedback type change
+            document.getElementById('feedbackType').addEventListener('change', (e) => {
+                const showCorrection = e.target.value !== 'positive_confirmation';
+                document.getElementById('correctionFields').style.display = showCorrection ? 'block' : 'none';
+            });
+
+            // Case modal
+            document.getElementById('closeCaseModal').addEventListener('click', () => {
+                document.getElementById('caseModal').classList.remove('show');
+            });
+
+            // Refresh stats
+            document.getElementById('refreshStats').addEventListener('click', loadDashboardData);
+
+            // Demo
+            document.getElementById('runDemoBtn').addEventListener('click', runDemo);
+
+            // Docs
+            document.getElementById('viewDocsBtn').addEventListener('click', () => {
+                window.open(`${API_URL}/docs`, '_blank');
+            });
+
+            // Close modals on overlay click
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) overlay.classList.remove('show');
+                });
+            });
+        }
+
+        // ============================================
+        // API Calls
+        // ============================================
+        async function submitText() {
+            const text = document.getElementById('textInput').value.trim();
+            if (!text) {
+                showToast('Please enter symptoms', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('submitTextBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Processing...';
+
+            try {
+                const formData = new FormData();
+                formData.append('text', text);
+                formData.append('language', document.getElementById('language').value);
+
+                const response = await fetch(`${API_URL}/api/intake/text`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showResult(data);
+                    showToast('Assessment complete!', 'success');
+                    loadDashboardData();
+                } else {
+                    throw new Error(data.detail || 'Server error');
+                }
+            } catch (err) {
+                showToast(`Error: ${err.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'जमा करें / Submit';
+            }
+        }
+
+        async function submitAudio() {
+            if (!audioBlob) {
+                showToast('No recording found', 'warning');
+                return;
+            }
+
+            // Check audio size
+            if (audioBlob.size < 1000) {
+                showToast('Recording too short. Please record again.', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('submitAudioBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Transcribing...';
+
+            try {
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'recording.webm');
+                formData.append('language', document.getElementById('language').value);
+
+                console.log('Sending audio:', audioBlob.size, 'bytes');
+
+                const response = await fetch(`${API_URL}/api/intake/audio`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                console.log('Response:', data);
+
+                if (response.ok) {
+                    showResult(data);
+                    showToast('Assessment complete!', 'success');
+                    loadDashboardData();
+                } else {
+                    throw new Error(data.detail || 'Server error');
+                }
+            } catch (err) {
+                console.error('Audio submit error:', err);
+                showToast(`Error: ${err.message}. Try text input instead.`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'जमा करें / Submit';
+            }
+        }
+
+        async function runDemo() {
+            const btn = document.getElementById('runDemoBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Running...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/intake/demo`, { method: 'POST' });
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Demo returns nested result
+                    const result = data.result || data;
+                    showResult(result);
+                    showToast('Demo intake created!', 'success');
+                    loadDashboardData();
+                } else {
+                    throw new Error(data.detail || 'Demo failed');
+                }
+            } catch (err) {
+                showToast(`Error: ${err.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '🎯 Run Demo Intake';
+            }
+        }
+
+        async function submitFeedback() {
+            const doctorId = document.getElementById('doctorId').value.trim();
+            const feedbackType = document.getElementById('feedbackType').value;
+            const correctedValue = document.getElementById('correctedValue').value.trim();
+            const reasoning = document.getElementById('feedbackReasoning').value.trim();
+
+            if (!doctorId) {
+                showToast('Please enter Doctor ID', 'warning');
+                return;
+            }
+
+            if (!currentIntakeId) {
+                showToast('No intake selected', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('submitFeedback');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Submitting...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/feedback/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        intake_id: currentIntakeId,
+                        doctor_id: doctorId,
+                        feedback_type: feedbackType,
+                        original: currentResult || {},
+                        corrected: feedbackType !== 'positive_confirmation'
+                            ? { value: correctedValue }
+                            : {},
+                        reasoning: reasoning
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showToast('Feedback submitted! Thank you.', 'success');
+                    document.getElementById('feedbackModal').classList.remove('show');
+                    // Clear form
+                    document.getElementById('doctorId').value = '';
+                    document.getElementById('correctedValue').value = '';
+                    document.getElementById('feedbackReasoning').value = '';
+                    loadPerformance();
+                } else {
+                    throw new Error(data.detail || 'Failed to submit feedback');
+                }
+            } catch (err) {
+                showToast(`Error: ${err.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Submit Feedback';
+            }
+        }
+
+        // ============================================
+        // Dashboard Data Loading
+        // ============================================
+        async function loadDashboardData() {
+            await Promise.all([
+                loadStats(),
+                loadRecentCases(),
+                loadAlerts(),
+                loadPerformance()
+            ]);
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_URL}/api/dashboard/stats`);
+                const data = await response.json();
+
+                document.getElementById('totalCases').textContent = data.total_intakes || 0;
+                document.getElementById('urgentCases').textContent = data.urgent || 0;
+                document.getElementById('moderateCases').textContent = data.moderate || 0;
+                document.getElementById('routineCases').textContent = data.routine || 0;
+            } catch (err) {
+                console.error('Failed to load stats:', err);
+            }
+        }
+
+        async function loadRecentCases() {
+            try {
+                const response = await fetch(`${API_URL}/api/dashboard/intakes?limit=5`);
+                const data = await response.json();
+                const intakes = data.intakes || [];
+
+                const container = document.getElementById('recentCases');
+
+                if (intakes.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">📭</div>
+                            <p>No cases yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = intakes.map(intake => `
+                    <div class="case-item" onclick="showCaseDetails(${intake.id})">
+                        <div class="case-header">
+                            <span class="case-id">#${intake.id}</span>
+                            <span class="mini-badge ${intake.risk_level}">${intake.risk_level}</span>
+                        </div>
+                        <p class="case-complaint">${intake.chief_complaint || intake.summary_english || 'No details'}</p>
+                        <span class="case-time">${formatTime(intake.created_at)}</span>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Failed to load cases:', err);
+            }
+        }
+
+        async function loadAlerts() {
+            try {
+                const response = await fetch(`${API_URL}/api/dashboard/alerts`);
+                if (!response.ok) throw new Error('No alerts endpoint');
+
+                const data = await response.json();
+                const alerts = data.alerts || [];
+
+                const container = document.getElementById('alertsContainer');
+
+                if (alerts.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state" id="noAlerts">
+                            <div class="icon">✅</div>
+                            <p>No active outbreak alerts</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = alerts.map(alert => `
+                    <div class="alert-item ${alert.severity || 'medium'}">
+                        <div class="alert-title">${alert.condition || alert.title}</div>
+                        <div class="alert-desc">${alert.message || alert.case_count + ' cases detected'}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                // Silently fail - alerts endpoint might not exist
+                const container = document.getElementById('alertsContainer');
+                container.innerHTML = `
+                    <div class="empty-state" id="noAlerts">
+                        <div class="icon">✅</div>
+                        <p>No active outbreak alerts</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadPerformance() {
+            try {
+                const response = await fetch(`${API_URL}/api/feedback/performance`);
+                const data = await response.json();
+
+                const accuracy = (data.accuracy || 0.5) * 100;
+                document.getElementById('accuracyBar').style.width = `${accuracy}%`;
+                document.getElementById('accuracyValue').textContent = accuracy.toFixed(1);
+                document.getElementById('totalFeedback').textContent = data.total_feedback || 0;
+            } catch (err) {
+                console.error('Failed to load performance:', err);
+            }
+        }
+
+        async function showCaseDetails(id) {
+            try {
+                const response = await fetch(`${API_URL}/api/dashboard/intakes`);
+                const data = await response.json();
+                const intake = data.intakes?.find(i => i.id === id);
+
+                if (!intake) return;
+
+                const content = document.getElementById('caseModalContent');
+                content.innerHTML = `
+                    <div class="result-header">
+                        <span class="case-id">Case #${intake.id}</span>
+                        <span class="risk-badge risk-${intake.risk_level}">${intake.risk_level.toUpperCase()}</span>
+                    </div>
+                    <div class="result-section">
+                        <h4>Chief Complaint</h4>
+                        <p>${intake.chief_complaint || '--'}</p>
+                    </div>
+                    <div class="result-section">
+                        <h4>English Summary</h4>
+                        <p>${intake.summary_english || '--'}</p>
+                    </div>
+                    <div class="result-section hindi">
+                        <h4>हिंदी सारांश</h4>
+                        <p>${intake.summary_hindi || '--'}</p>
+                    </div>
+                    <div class="result-section">
+                        <h4>Recommended Action</h4>
+                        <p>${intake.recommended_action || '--'}</p>
+                    </div>
+                    <p class="hint">Created: ${formatTime(intake.created_at)}</p>
+                `;
+
+                document.getElementById('caseModal').classList.add('show');
+            } catch (err) {
+                showToast('Failed to load case details', 'error');
+            }
+        }
+
+        // ============================================
+        // UI Functions
+        // ============================================
+        function showResult(data) {
+            currentIntakeId = data.id;
+            currentResult = data;
+
+            // Show transcription if available (for audio input)
+            if (data.transcription) {
+                showToast(`Heard: "${data.transcription.substring(0, 50)}..."`, 'info');
+            }
+
+            // Risk badge
+            const risk = (data.risk_level || 'routine').toLowerCase();
+            const riskBadge = document.getElementById('riskBadge');
+            riskBadge.className = `risk-badge risk-${risk}`;
+            riskBadge.textContent = risk.toUpperCase();
+
+            // Chief complaint
+            document.getElementById('chiefComplaint').textContent =
+                data.chief_complaint || data.symptoms?.[0]?.symptom || data.symptoms?.[0]?.name || '--';
+
+            // Symptoms
+            const symptomsList = document.getElementById('symptomsList');
+            const symptoms = data.symptoms || [];
+            if (symptoms.length > 0) {
+                symptomsList.innerHTML = symptoms.map(s => {
+                    const name = s.symptom || s.name || s;
+                    const severity = s.severity ? ` (${s.severity})` : '';
+                    return `<span class="symptom-tag">${name}${severity}</span>`;
+                }).join('');
+            } else {
+                symptomsList.innerHTML = '<span class="symptom-tag">--</span>';
+            }
+
+            // Summaries
+            document.getElementById('summaryEn').textContent = data.summary_english || '--';
+            document.getElementById('summaryHi').textContent = data.summary_hindi || '--';
+            document.getElementById('recommendedAction').textContent = data.recommended_action || '--';
+
+            // Follow-up questions
+            const followUps = data.follow_up_questions || [];
+            const followUpSection = document.getElementById('followUpSection');
+            if (followUps.length > 0) {
+                followUpSection.style.display = 'block';
+                document.getElementById('followUpQuestions').innerHTML =
+                    followUps.map(q => `<li>${q}</li>`).join('');
+            } else {
+                followUpSection.style.display = 'none';
+            }
+
+            // Show result card
+            document.getElementById('resultCard').classList.add('show');
+        }
+
+        function resetForm() {
+            currentIntakeId = null;
+            currentResult = null;
+            document.getElementById('textInput').value = '';
+            audioBlob = null;
+            document.getElementById('audioPreview').classList.remove('show');
+            document.getElementById('submitAudioBtn').style.display = 'none';
+            document.getElementById('resultCard').classList.remove('show');
+        }
+
+        async function checkServerStatus() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                if (response.ok) {
+                    statusDot.classList.remove('offline');
+                    statusText.textContent = 'Connected';
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (err) {
+                statusDot.classList.add('offline');
+                statusText.textContent = 'Offline';
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+
+            toast.innerHTML = `<span>${icons[type]}</span><span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function formatTime(dateStr) {
+            if (!dateStr) return '--';
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diff = now - date;
+
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Periodic status check
+        setInterval(checkServerStatus, 10000);
+    </script>
+
+</body>
+
+</html>
